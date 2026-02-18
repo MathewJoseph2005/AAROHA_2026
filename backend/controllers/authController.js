@@ -153,30 +153,56 @@ const signOut = async (req, res) => {
  */
 const getProfile = async (req, res) => {
   try {
-    const { data: profile, error } = await supabase
+    let { data: profile, error } = await supabase
       .from('user_profiles')
       .select('*')
       .eq('user_id', req.user.id)
       .single();
 
-    if (error) {
-      return res.status(404).json({
-        success: false,
-        message: 'Profile not found.'
-      });
+    // If profile doesn't exist, auto-create it from auth user metadata
+    if (error || !profile) {
+      const metadata = req.user.user_metadata || {};
+      const newProfile = {
+        user_id: req.user.id,
+        email: req.user.email,
+        name: metadata.name || metadata.full_name || '',
+        phone: metadata.phone || '',
+        college_name: metadata.college_name || '',
+        role: req.userProfile?.role || 'team',
+      };
+
+      const { data: created, error: insertError } = await supabase
+        .from('user_profiles')
+        .upsert([newProfile], { onConflict: 'user_id' })
+        .select()
+        .single();
+
+      if (!insertError && created) {
+        profile = created;
+      } else {
+        // Table might not exist yet — return basic info from auth token
+        console.error('Profile upsert error:', insertError?.message);
+        profile = newProfile;
+      }
     }
 
     // Get user's registrations
-    const { data: registrations } = await supabase
-      .from('registrations')
-      .select('registration_id, team_name, registration_status, payment_status, created_at')
-      .eq('user_id', req.user.id);
+    let registrations = [];
+    try {
+      const { data: regData } = await supabase
+        .from('registrations')
+        .select('registration_id, team_name, registration_status, payment_status, created_at')
+        .eq('user_id', req.user.id);
+      registrations = regData || [];
+    } catch (regErr) {
+      console.error('Registrations fetch error:', regErr.message);
+    }
 
     res.status(200).json({
       success: true,
       data: {
         profile,
-        registrations: registrations || []
+        registrations
       }
     });
   } catch (error) {
@@ -604,28 +630,26 @@ const googleSignIn = async (req, res) => {
 };
 
 /**
- * Get Google OAuth URL for redirect-based flow (alternative method)
+ * Get Google OAuth URL for redirect-based flow
+ * Constructs the URL manually since signInWithOAuth is a client-side method
  */
 const getGoogleAuthUrl = async (req, res) => {
   try {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: process.env.GOOGLE_REDIRECT_URL || 'http://localhost:3000/auth/callback'
-      }
-    });
-
-    if (error) {
-      return res.status(400).json({
+    const supabaseUrl = process.env.SUPABASE_URL;
+    if (!supabaseUrl) {
+      return res.status(500).json({
         success: false,
-        message: error.message
+        message: 'Supabase URL not configured'
       });
     }
+
+    const redirectTo = process.env.GOOGLE_REDIRECT_URL || 'http://localhost:5173/auth/callback';
+    const authUrl = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
 
     res.status(200).json({
       success: true,
       data: {
-        url: data.url
+        url: authUrl
       }
     });
   } catch (error) {

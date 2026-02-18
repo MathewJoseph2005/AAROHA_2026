@@ -8,7 +8,7 @@ Backend API for the AAROHA 2026 Battle of Bands event registration system.
 - **Total Prize Pool**: ₹60,000
 - **Event Time**: 12:00 PM – 6:00 PM
 - **Reporting Time**: 10:00 AM (2 hours prior - Mandatory)
-- **Registration Fee**: ₹1000 per team
+- **Registration Fee**: ₹1200 per team
 
 ## Tech Stack
 

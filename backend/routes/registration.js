@@ -27,7 +27,7 @@ router.get('/event-info', (req, res) => {
       prize_pool: '₹60,000',
       event_time: '12:00 PM – 6:00 PM',
       reporting_time: '10:00 AM (2 hours prior - Mandatory)',
-      registration_fee: '₹1000 per team',
+      registration_fee: '₹1200 per team',
       requirements: [
         'Team must specify number of microphones',
         'Team must specify drum setup requirements',
@@ -37,8 +37,8 @@ router.get('/event-info', (req, res) => {
   });
 });
 
-// Register team (optionally with auth - links to user account if logged in)
-router.post('/register', optionalAuth, validateRegistration, createRegistration);
+// Register team (requires authentication)
+router.post('/register', verifyToken, validateRegistration, createRegistration);
 
 // =====================================================
 // AUTHENTICATED ROUTES (Require login)

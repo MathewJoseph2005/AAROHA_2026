@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS registrations (
     num_microphones INTEGER NOT NULL DEFAULT 1,
     drum_setup TEXT NOT NULL,
     additional_requirements TEXT,
-    registration_fee INTEGER NOT NULL DEFAULT 1000,
+    registration_fee INTEGER NOT NULL DEFAULT 1200,
     payment_status VARCHAR(20) NOT NULL DEFAULT 'pending',
     transaction_id VARCHAR(100),
     registration_status VARCHAR(20) NOT NULL DEFAULT 'pending',
@@ -162,7 +162,7 @@ async function initializeDatabase() {
   console.log('  - num_microphones (INTEGER) - Required microphones');
   console.log('  - drum_setup (TEXT) - Drum setup requirements');
   console.log('  - additional_requirements (TEXT) - Other tech needs');
-  console.log('  - registration_fee (INTEGER) - Fee amount (₹1000)');
+  console.log('  - registration_fee (INTEGER) - Fee amount (₹1200)');
   console.log('  - payment_status (VARCHAR) - pending/completed/failed/refunded');
   console.log('  - transaction_id (VARCHAR) - Payment transaction ID');
   console.log('  - registration_status (VARCHAR) - pending/confirmed/rejected');

@@ -13,6 +13,12 @@ export function AuthProvider({ children }) {
     return stored ? JSON.parse(stored) : null;
   });
   const [loading, setLoading] = useState(true);
+  const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
+
+  // Helper to check if a profile has required fields filled
+  const isProfileComplete = useCallback((profile) => {
+    return !!(profile?.phone && profile.phone.trim() && profile?.college_name && profile.college_name.trim());
+  }, []);
 
   // Persist user & session to localStorage
   useEffect(() => {
@@ -41,7 +47,9 @@ export function AuthProvider({ children }) {
       try {
         const { data } = await authAPI.getProfile();
         if (data.success) {
-          setUser((prev) => ({ ...prev, ...data.data.profile }));
+          const profile = data.data.profile;
+          setUser((prev) => ({ ...prev, ...profile }));
+          setNeedsProfileCompletion(!isProfileComplete(profile));
         }
       } catch {
         // Token might be expired, let interceptor handle refresh
@@ -65,9 +73,28 @@ export function AuthProvider({ children }) {
     } finally {
       setUser(null);
       setSession(null);
+      setNeedsProfileCompletion(false);
       localStorage.removeItem('user');
       localStorage.removeItem('session');
     }
+  }, []);
+
+  // Fetch profile and update completeness flag (called after OAuth callback)
+  const refreshProfile = useCallback(async () => {
+    try {
+      const { data } = await authAPI.getProfile();
+      if (data.success) {
+        const profile = data.data.profile;
+        setUser((prev) => ({ ...prev, ...profile }));
+        setNeedsProfileCompletion(!isProfileComplete(profile));
+      }
+    } catch {
+      // Ignore
+    }
+  }, [isProfileComplete]);
+
+  const markProfileComplete = useCallback(() => {
+    setNeedsProfileCompletion(false);
   }, []);
 
   const isAuthenticated = !!session?.access_token;
@@ -81,9 +108,12 @@ export function AuthProvider({ children }) {
         loading,
         isAuthenticated,
         isAdmin,
+        needsProfileCompletion,
         login,
         logout,
         setUser,
+        refreshProfile,
+        markProfileComplete,
       }}
     >
       {children}

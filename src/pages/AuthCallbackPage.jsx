@@ -7,11 +7,11 @@ import { useAuth } from '@/context/AuthContext';
  * Supabase appends tokens to the URL hash after authentication.
  */
 export default function AuthCallbackPage() {
-  const { login } = useAuth();
+  const { login, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleCallback = () => {
+    const handleCallback = async () => {
       // Supabase returns tokens in the URL hash
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
@@ -26,17 +26,23 @@ export default function AuthCallbackPage() {
           expires_at: params.get('expires_at'),
         };
 
-        // Store session, then fetch profile
+        // Store session so API calls can use the token
         login({ email: 'Loading...' }, session);
+        localStorage.setItem('session', JSON.stringify(session));
+
+        // Fetch profile & set needsProfileCompletion flag in AuthContext
+        await refreshProfile();
+
+        // Navigate to dashboard — ProtectedRoute will auto-redirect
+        // to /complete-profile if phone/college are missing
         navigate('/dashboard', { replace: true });
       } else {
-        // No tokens found, redirect to auth page
         navigate('/auth', { replace: true });
       }
     };
 
     handleCallback();
-  }, [login, navigate]);
+  }, [login, navigate, refreshProfile]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">

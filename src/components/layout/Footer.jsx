@@ -1,5 +1,6 @@
-import { Music, Mail, Instagram, MapPin } from 'lucide-react';
+import { Phone, Instagram, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import sargamLogo from '@/assets/SARGAM_LOGO.png';
 
 export default function Footer() {
   return (
@@ -11,8 +12,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Music className="w-6 h-6 text-neon-violet" />
+            <div className="flex items-center gap-2.5">
+              <img src={sargamLogo} alt="SARGAM" className="h-7 w-7 object-contain" style={{ filter: 'drop-shadow(0 0 5px rgba(139,92,246,0.35))' }} />
               <span className="text-lg font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
                 SARGAM 2026
               </span>
@@ -55,20 +56,26 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-sm text-gray-400">
-                <Mail className="w-4 h-4 text-neon-violet" />
-                <a href="mailto:aaroha2026@sjc.ac.in" className="hover:text-neon-cyan transition-colors">
-                  aaroha2026@sjc.ac.in
+                <Phone className="w-4 h-4 text-neon-violet" />
+                <a href="tel:+916238010336" className="hover:text-neon-cyan transition-colors">
+                  Alen Siju: 6238010336
+                </a>
+              </li>
+              <li className="flex items-center gap-2 text-sm text-gray-400">
+                <Phone className="w-4 h-4 text-neon-violet" />
+                <a href="tel:+916282257804" className="hover:text-neon-cyan transition-colors">
+                  Arjun TN: 6282257804
                 </a>
               </li>
               <li className="flex items-center gap-2 text-sm text-gray-400">
                 <Instagram className="w-4 h-4 text-neon-magenta" />
-                <a href="https://instagram.com/aaroha_sjc" target="_blank" rel="noopener noreferrer" className="hover:text-neon-cyan transition-colors">
-                  @aaroha_sjc
+                <a href="https://www.instagram.com/sargam_sjcet?igsh=MXNlcHJ4MTJwdmpseQ==" target="_blank" rel="noopener noreferrer" className="hover:text-neon-cyan transition-colors">
+                  @sargam_sjcet
                 </a>
               </li>
               <li className="flex items-start gap-2 text-sm text-gray-400">
                 <MapPin className="w-4 h-4 text-neon-gold mt-0.5" />
-                <span>St. Joseph&apos;s College (Autonomous), Bangalore</span>
+                <span>St. Joseph&apos;s College of Engineering and Technology, Palai (Autonomous)</span>
               </li>
             </ul>
           </div>
@@ -78,7 +85,7 @@ export default function Footer() {
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-gray-500">
-            &copy; 2026 AAROHA – St. Joseph&apos;s College. All rights reserved.
+            &copy; 2026 AAROHA – St. Joseph&apos;s College of Engineering and Technology, Palai. All rights reserved.
           </p>
           <p className="text-xs text-gray-500">
             Made with passion for music

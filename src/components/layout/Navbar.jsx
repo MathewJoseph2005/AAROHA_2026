@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Music, LogOut, User, LayoutDashboard } from 'lucide-react';
+import { Menu, X, LogOut, User, LayoutDashboard, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
+import sargamLogo from '@/assets/SARGAM_LOGO.png';
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -28,8 +29,13 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <Music className="w-7 h-7 text-neon-violet group-hover:text-neon-cyan transition-colors" />
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <img
+              src={sargamLogo}
+              alt="SARGAM"
+              className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-110"
+              style={{ filter: 'drop-shadow(0 0 8px rgba(139,92,246,0.5)) drop-shadow(0 0 20px rgba(139,92,246,0.2))' }}
+            />
             <span className="text-lg font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
               SARGAM 2026
             </span>
@@ -56,6 +62,14 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <>
+                {isAdmin && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/admin" className="gap-2 text-violet-400 hover:text-violet-300">
+                      <ShieldCheck className="w-4 h-4" />
+                      Admin
+                    </Link>
+                  </Button>
+                )}
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/dashboard" className="gap-2">
                     <LayoutDashboard className="w-4 h-4" />
@@ -115,6 +129,14 @@ export default function Navbar() {
               <div className="pt-3 border-t border-white/10 space-y-2">
                 {isAuthenticated ? (
                   <>
+                    {isAdmin && (
+                      <Button variant="ghost" className="w-full justify-start gap-2 text-violet-400" asChild>
+                        <Link to="/admin" onClick={() => setMobileOpen(false)}>
+                          <ShieldCheck className="w-4 h-4" />
+                          Admin Panel
+                        </Link>
+                      </Button>
+                    )}
                     <Button variant="ghost" className="w-full justify-start gap-2" asChild>
                       <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
                         <LayoutDashboard className="w-4 h-4" />

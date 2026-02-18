@@ -13,6 +13,8 @@ import {
   Send,
   CheckCircle,
   AlertCircle,
+  QrCode,
+  Receipt,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,10 +34,11 @@ export default function RegistrationPage() {
   const editId = searchParams.get('edit');
 
   const [loading, setLoading] = useState(false);
-  const [fetchLoading, setFetchLoading] = useState(!!editId);
+  const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [registrationData, setRegistrationData] = useState(null);
+  const [hasExistingRegistration, setHasExistingRegistration] = useState(false);
 
   const [form, setForm] = useState({
     team_name: '',
@@ -52,40 +55,55 @@ export default function RegistrationPage() {
     num_microphones: 2,
     drum_setup: '',
     additional_requirements: '',
+    transaction_id: '',
   });
 
-  // Load existing registration for editing
+  // Check if user already has a registration (block new registration, allow edit)
   useEffect(() => {
-    if (!editId) return;
-
-    const fetchRegistration = async () => {
-      try {
-        const { data } = await registrationAPI.getById(editId);
-        if (data.success) {
-          const reg = data.data;
-          setForm({
-            team_name: reg.team_name || '',
-            college_name: reg.college_name || '',
-            team_leader_name: reg.team_leader_name || '',
-            team_leader_email: reg.team_leader_email || '',
-            team_leader_phone: reg.team_leader_phone || '',
-            team_members: Array.isArray(reg.team_members) && reg.team_members.length >= 4
-              ? reg.team_members
-              : [...(reg.team_members || []), ...Array(4).fill(EMPTY_MEMBER)].slice(0, Math.max(4, reg.team_members?.length || 4)),
-            num_microphones: reg.num_microphones || 2,
-            drum_setup: reg.drum_setup || '',
-            additional_requirements: reg.additional_requirements || '',
-          });
-          setRegistrationData(reg);
+    const checkExisting = async () => {
+      if (editId) {
+        // Editing existing — load it
+        try {
+          const { data } = await registrationAPI.getById(editId);
+          if (data.success) {
+            const reg = data.data;
+            setForm({
+              team_name: reg.team_name || '',
+              college_name: reg.college_name || '',
+              team_leader_name: reg.team_leader_name || '',
+              team_leader_email: reg.team_leader_email || '',
+              team_leader_phone: reg.team_leader_phone || '',
+              team_members: Array.isArray(reg.team_members) && reg.team_members.length >= 4
+                ? reg.team_members
+                : [...(reg.team_members || []), ...Array(4).fill(EMPTY_MEMBER)].slice(0, Math.max(4, reg.team_members?.length || 4)),
+              num_microphones: reg.num_microphones || 2,
+              drum_setup: reg.drum_setup || '',
+              additional_requirements: reg.additional_requirements || '',
+              transaction_id: reg.transaction_id || '',
+            });
+            setRegistrationData(reg);
+          }
+        } catch (err) {
+          setError('Failed to load registration data.');
+        } finally {
+          setFetchLoading(false);
         }
-      } catch (err) {
-        setError('Failed to load registration data.');
-      } finally {
-        setFetchLoading(false);
+      } else {
+        // New registration — check if user already registered
+        try {
+          const { data } = await registrationAPI.getMyRegistrations();
+          if (data.success && data.data && data.data.length > 0) {
+            setHasExistingRegistration(true);
+          }
+        } catch {
+          // Ignore — let them proceed
+        } finally {
+          setFetchLoading(false);
+        }
       }
     };
 
-    fetchRegistration();
+    checkExisting();
   }, [editId]);
 
   const handleChange = (e) => {
@@ -143,6 +161,11 @@ export default function RegistrationPage() {
     }
     if (!form.drum_setup.trim()) {
       setError('Drum Setup is required (enter "none" if not needed).');
+      setLoading(false);
+      return;
+    }
+    if (!form.transaction_id.trim()) {
+      setError('Transaction / UTR ID is required. Please make the payment and enter the transaction ID.');
       setLoading(false);
       return;
     }
@@ -205,7 +228,7 @@ export default function RegistrationPage() {
           <p className="text-gray-400">
             {editId
               ? 'Your band registration has been updated successfully.'
-              : 'Your band has been registered for SARGAM 2026. Please complete the payment of ₹1,000 to confirm your spot.'}
+              : 'Your band has been registered for SARGAM 2026. Please complete the payment of ₹1,200 to confirm your spot.'}
           </p>
 
           {registrationData && (
@@ -221,7 +244,7 @@ export default function RegistrationPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Fee</span>
-                  <span className="text-neon-gold font-medium">₹{registrationData.registration_fee || 1000}</span>
+                  <span className="text-neon-gold font-medium">₹{registrationData.registration_fee || 1200}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Status</span>
@@ -257,6 +280,35 @@ export default function RegistrationPage() {
     );
   }
 
+  // Show message if user already has a registration (and not in edit mode)
+  if (hasExistingRegistration && !editId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 py-20">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full text-center space-y-6"
+        >
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-500/20 flex items-center justify-center mx-auto">
+            <AlertCircle className="w-10 h-10 text-amber-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white">Already Registered</h2>
+          <p className="text-gray-400">
+            You have already registered a band. Only one registration per user is allowed. You can edit your existing registration from the dashboard.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button variant="neon" asChild>
+              <Link to="/dashboard">Go to Dashboard</Link>
+            </Button>
+            <Button variant="neon-outline" asChild>
+              <Link to="/">Back to Home</Link>
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pt-20 pb-12 px-4 relative">
       {/* Background */}
@@ -287,7 +339,7 @@ export default function RegistrationPage() {
                     {editId ? 'Edit Registration' : 'Band Registration'}
                   </CardTitle>
                   <CardDescription className="text-gray-400">
-                    AAROHA 2026 – SARGAM | Registration Fee: ₹1,000
+                    AAROHA 2026 – SARGAM | Registration Fee: ₹1,200
                   </CardDescription>
                 </div>
               </div>
@@ -523,16 +575,68 @@ export default function RegistrationPage() {
 
                 <Separator className="bg-white/5" />
 
-                {/* Fee Info */}
-                <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/20">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-white">Registration Fee</p>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        Per team • Non-refundable • Payment details will be shared after registration
-                      </p>
+                {/* Payment Section */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-neon-gold uppercase tracking-wider flex items-center gap-2">
+                    <QrCode className="w-4 h-4" />
+                    Payment
+                  </h3>
+
+                  {/* Fee Info */}
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/20">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-white">Registration Fee</p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          Per team • Non-refundable
+                        </p>
+                      </div>
+                      <span className="text-2xl font-bold text-neon-gold">₹1,200</span>
                     </div>
-                    <span className="text-2xl font-bold text-neon-gold">₹1,000</span>
+                  </div>
+
+                  {/* QR Code */}
+                  <div className="flex flex-col items-center gap-3 p-6 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                    <p className="text-sm font-medium text-white">Scan to Pay</p>
+                    <div className="w-56 h-56 bg-white rounded-xl flex items-center justify-center overflow-hidden">
+                      {/* Replace src with your actual QR code image path */}
+                      <img
+                        src="/payment-qr.png"
+                        alt="Payment QR Code"
+                        className="w-full h-full object-contain p-2"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                      <div className="hidden flex-col items-center justify-center text-gray-400 gap-2 w-full h-full">
+                        <QrCode className="w-12 h-12 text-gray-500" />
+                        <span className="text-xs text-gray-500">QR code not found</span>
+                        <span className="text-[10px] text-gray-600">Place payment-qr.png in public/</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 text-center">
+                      Pay ₹1,200 via UPI and enter the transaction ID below
+                    </p>
+                  </div>
+
+                  {/* Transaction ID */}
+                  <div className="space-y-2">
+                    <Label className="text-gray-300 flex items-center gap-1">
+                      <Receipt className="w-3 h-3" />
+                      Transaction / UTR ID *
+                    </Label>
+                    <Input
+                      name="transaction_id"
+                      value={form.transaction_id}
+                      onChange={handleChange}
+                      placeholder="e.g. 123456789012 or UPI ref number"
+                      required
+                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-violet-500"
+                    />
+                    <p className="text-xs text-gray-500">
+                      Enter the UPI transaction ID or UTR number after making the payment
+                    </p>
                   </div>
                 </div>
 

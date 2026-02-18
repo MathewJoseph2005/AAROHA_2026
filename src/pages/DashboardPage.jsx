@@ -14,7 +14,13 @@ import {
   LogOut,
   Edit,
   Eye,
+  EyeOff,
   CreditCard,
+  Users,
+  Drum,
+  FileText,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +35,7 @@ export default function DashboardPage() {
   const [registrations, setRegistrations] = useState([]);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [expandedReg, setExpandedReg] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -114,12 +121,14 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="neon" asChild>
-              <Link to="/register" className="gap-2">
-                <Plus className="w-4 h-4" />
-                Register Band
-              </Link>
-            </Button>
+            {registrations.length === 0 && (
+              <Button variant="neon" asChild>
+                <Link to="/register" className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Register Band
+                </Link>
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={handleLogout} className="text-gray-400 hover:text-red-400">
               <LogOut className="w-5 h-5" />
             </Button>
@@ -232,7 +241,7 @@ export default function DashboardPage() {
                           </div>
                           <div className="flex flex-wrap items-center gap-2">
                             {getStatusBadge(reg.registration_status)}
-                            {getPaymentBadge(reg.payment_status)}
+                            {reg.payment_status && reg.payment_status !== 'pending' && getPaymentBadge(reg.payment_status)}
                           </div>
                         </div>
 
@@ -242,7 +251,7 @@ export default function DashboardPage() {
                           <span>Leader: {reg.team_leader_name}</span>
                           <span>Members: {Array.isArray(reg.team_members) ? reg.team_members.length : 0}</span>
                           <span>Mics: {reg.num_microphones}</span>
-                          <span>Fee: ₹{reg.registration_fee}</span>
+                          <span>Fee: ₹1,200</span>
                         </div>
 
                         <div className="flex items-center gap-2 mt-3">
@@ -252,11 +261,102 @@ export default function DashboardPage() {
                               Edit
                             </Link>
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-gray-400">
-                            <Eye className="w-3 h-3 mr-1" />
-                            Details
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-gray-400"
+                            onClick={() =>
+                              setExpandedReg(
+                                expandedReg === reg.registration_id ? null : reg.registration_id
+                              )
+                            }
+                          >
+                            {expandedReg === reg.registration_id ? (
+                              <><EyeOff className="w-3 h-3 mr-1" /> Hide</>
+                            ) : (
+                              <><Eye className="w-3 h-3 mr-1" /> Details</>
+                            )}
                           </Button>
                         </div>
+
+                        {/* Expandable details section */}
+                        {expandedReg === reg.registration_id && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-3 pt-3 border-t border-white/5 space-y-3"
+                          >
+                            {/* Team Leader */}
+                            <div className="space-y-1">
+                              <p className="text-xs font-medium text-gray-400 flex items-center gap-1">
+                                <User className="w-3 h-3" /> Team Leader
+                              </p>
+                              <div className="pl-4 text-sm text-gray-300 space-y-0.5">
+                                <p>{reg.team_leader_name}</p>
+                                <p className="text-xs text-gray-500">{reg.team_leader_email}</p>
+                                <p className="text-xs text-gray-500">{reg.team_leader_phone}</p>
+                              </div>
+                            </div>
+
+                            {/* Team Members */}
+                            {Array.isArray(reg.team_members) && reg.team_members.length > 0 && (
+                              <div className="space-y-1">
+                                <p className="text-xs font-medium text-gray-400 flex items-center gap-1">
+                                  <Users className="w-3 h-3" /> Team Members ({reg.team_members.length})
+                                </p>
+                                <div className="pl-4 space-y-1">
+                                  {reg.team_members.map((member, j) => (
+                                    <div key={j} className="text-sm text-gray-300 flex items-center gap-2">
+                                      <span className="w-5 h-5 rounded-full bg-violet-500/20 text-violet-400 flex items-center justify-center text-[10px] font-medium">
+                                        {j + 1}
+                                      </span>
+                                      <span>{member.name || member}</span>
+                                      {member.role && (
+                                        <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-white/10 text-gray-500">
+                                          {member.role}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Drum Setup */}
+                            {reg.drum_setup && (
+                              <div className="space-y-1">
+                                <p className="text-xs font-medium text-gray-400 flex items-center gap-1">
+                                  <Music className="w-3 h-3" /> Drum Setup
+                                </p>
+                                <p className="pl-4 text-sm text-gray-300 capitalize">{reg.drum_setup}</p>
+                              </div>
+                            )}
+
+                            {/* Additional Requirements */}
+                            {reg.additional_requirements && (
+                              <div className="space-y-1">
+                                <p className="text-xs font-medium text-gray-400 flex items-center gap-1">
+                                  <FileText className="w-3 h-3" /> Additional Requirements
+                                </p>
+                                <p className="pl-4 text-sm text-gray-300">{reg.additional_requirements}</p>
+                              </div>
+                            )}
+
+                            {/* Payment Info */}
+                            <div className="space-y-1">
+                              <p className="text-xs font-medium text-gray-400 flex items-center gap-1">
+                                <CreditCard className="w-3 h-3" /> Payment
+                              </p>
+                              <div className="pl-4 text-sm text-gray-300 space-y-0.5">
+                                <p>Fee: ₹1,200</p>
+                                {reg.transaction_id && (
+                                  <p className="text-xs text-gray-500">Transaction: {reg.transaction_id}</p>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
                       </div>
                     ))}
                   </div>

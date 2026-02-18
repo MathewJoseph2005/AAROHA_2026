@@ -119,7 +119,7 @@ const startServer = async () => {
   
   Event: Battle of Bands - SARGAM
   Prize Pool: ₹60,000
-  Registration Fee: ₹1000 per team
+  Registration Fee: ₹1200 per team
   ==========================================
   
   AUTH ENDPOINTS:

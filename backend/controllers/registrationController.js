@@ -2,7 +2,7 @@ const supabase = require('../config/supabase');
 const { v4: uuidv4 } = require('uuid');
 
 // Registration fee constant
-const REGISTRATION_FEE = 1000;
+const REGISTRATION_FEE = 1200;
 
 /**
  * Create a new team registration
@@ -18,13 +18,27 @@ const createRegistration = async (req, res) => {
       team_members,
       num_microphones,
       drum_setup,
-      additional_requirements
+      additional_requirements,
+      transaction_id
     } = req.body;
 
     const registration_id = uuidv4();
     
-    // If user is logged in, link registration to their account
-    const user_id = req.user ? req.user.id : null;
+    // User must be logged in (verifyToken middleware)
+    const user_id = req.user.id;
+
+    // Check if user already has a registration
+    const { data: existing, error: checkError } = await supabase
+      .from('registrations')
+      .select('registration_id')
+      .eq('user_id', user_id);
+
+    if (!checkError && existing && existing.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: 'You have already registered a band. Only one registration per user is allowed.'
+      });
+    }
 
     const { data, error } = await supabase
       .from('registrations')
@@ -41,6 +55,7 @@ const createRegistration = async (req, res) => {
           num_microphones,
           drum_setup,
           additional_requirements,
+          transaction_id: transaction_id || null,
           registration_fee: REGISTRATION_FEE,
           payment_status: 'pending',
           registration_status: 'pending'

@@ -2,17 +2,19 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Trophy, Calendar, Users, Zap } from 'lucide-react';
+import sargamLogo from '@/assets/SARGAM_LOGO.png';
+import sjcLogo from '@/assets/SJC_LOGO.png';
 
 const stats = [
   { icon: Trophy, label: 'Prize Pool', value: '₹60,000', color: 'text-neon-gold' },
   { icon: Calendar, label: 'Event Time', value: '12 PM – 6 PM', color: 'text-neon-cyan' },
   { icon: Users, label: 'Team Size', value: '4–10 Members', color: 'text-neon-magenta' },
-  { icon: Zap, label: 'Entry Fee', value: '₹1,000/team', color: 'text-neon-violet' },
+  { icon: Zap, label: 'Entry Fee', value: '₹1,200/team', color: 'text-neon-violet' },
 ];
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-28">
       {/* Animated background gradients */}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-600/20 rounded-full blur-[128px] animate-glow-pulse" />
@@ -30,6 +32,68 @@ export default function Hero() {
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        {/* SARGAM Logo Hero */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          className="relative flex items-center justify-center mb-14"
+        >
+          {/* Rotating halo ring */}
+          <div className="absolute w-52 h-52 sm:w-64 sm:h-64 md:w-80 md:h-80 logo-halo">
+            <div className="w-full h-full rounded-full" style={{
+              background: 'conic-gradient(from 0deg, rgba(139,92,246,0.5), rgba(6,182,212,0.4), rgba(236,72,153,0.4), rgba(139,92,246,0.5))',
+              mask: 'radial-gradient(farthest-side, transparent calc(100% - 3px), white calc(100% - 2px))',
+              WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 3px), white calc(100% - 2px))',
+            }} />
+          </div>
+
+          {/* Outer glow — slow breathe */}
+          <div className="absolute w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-full bg-violet-600/15 blur-[80px] logo-breathe-slow" />
+
+          {/* Inner glow — faster breathe, offset timing */}
+          <div className="absolute w-48 h-48 sm:w-56 sm:h-56 md:w-72 md:h-72 rounded-full bg-cyan-500/10 blur-[60px] logo-breathe-fast" />
+
+          {/* Liquid glass circle with SJC logo behind */}
+          <div className="relative w-48 h-48 sm:w-60 sm:h-60 md:w-72 md:h-72 rounded-full overflow-hidden">
+            {/* Layer 1: SJC logo as faint background */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <img
+                src={sjcLogo}
+                alt=""
+                className="w-[60%] h-[60%] object-contain opacity-20"
+                style={{ filter: 'blur(1px) brightness(1.2)' }}
+              />
+            </div>
+
+            {/* Layer 2: Frosted glass overlay */}
+            <div
+              className="absolute inset-0 rounded-full backdrop-blur-md border border-white/10"
+              style={{
+                background: 'radial-gradient(circle at 30% 30%, rgba(139,92,246,0.15), rgba(15,23,42,0.6) 60%, rgba(6,182,212,0.08))',
+                boxShadow: 'inset 0 0 40px rgba(139,92,246,0.1), inset 0 2px 4px rgba(255,255,255,0.05), 0 0 30px rgba(139,92,246,0.15)',
+              }}
+            />
+
+            {/* Layer 3: SARGAM logo on top — highlighted */}
+            <div className="relative w-full h-full flex items-center justify-center logo-float">
+              {/* Shine sweep overlay */}
+              <div className="absolute inset-0 overflow-hidden rounded-full">
+                <div className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/15 to-transparent logo-shine" />
+              </div>
+
+              <img
+                src={sargamLogo}
+                alt="SARGAM 2026"
+                className="relative w-[75%] h-[75%] object-contain"
+                style={{
+                  filter: 'drop-shadow(0 0 30px rgba(139,92,246,0.5)) drop-shadow(0 0 60px rgba(139,92,246,0.25)) drop-shadow(0 0 100px rgba(6,182,212,0.15))',
+                }}
+              />
+            </div>
+          </div>
+        </motion.div>
+
         {/* Tag line */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -38,7 +102,6 @@ export default function Hero() {
           className="mb-6"
         >
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 text-sm font-medium">
-            <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
             AAROHA 2026 – Inter-College Battle of Bands
           </span>
         </motion.div>
@@ -79,7 +142,7 @@ export default function Hero() {
             <Link to="/register">Register Your Band</Link>
           </Button>
           <Button variant="neon-outline" size="xl" asChild>
-            <Link to="/auth">Login to Dashboard</Link>
+            <Link to="/dashboard">Go to Dashboard</Link>
           </Button>
         </motion.div>
 

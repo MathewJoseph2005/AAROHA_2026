@@ -53,7 +53,7 @@ const eligibility = [
   'Open to all college & university students across India',
   'Valid college ID is mandatory for all band members',
   'One student can be part of only one band',
-  'Registration fee: ₹1,000 per team (non-refundable)',
+  'Registration fee: ₹1,200 per team (non-refundable)',
   'All genres of music are welcome',
 ];
 

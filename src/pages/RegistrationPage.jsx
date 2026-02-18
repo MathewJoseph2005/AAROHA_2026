@@ -527,7 +527,10 @@ export default function RegistrationPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-gray-300">Number of Microphones * (1-20)</Label>
+                      <Label className="text-gray-300 flex items-center gap-1">
+                        <Mic className="w-3 h-3" />
+                        Number of Microphones * (1-20)
+                      </Label>
                       <Input
                         type="number"
                         name="num_microphones"

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, LogOut, User, LayoutDashboard, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
-import sargamLogo from '@/assets/SARGAM_LOGO.png';
+import sargamLogo from '@/assets/icon_logo.png';
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -47,11 +47,10 @@ export default function Navbar() {
               <a
                 key={link.href}
                 href={link.href}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-white hover:bg-white/5 ${
-                  location.pathname === link.href
-                    ? 'text-white'
-                    : 'text-gray-400'
-                }`}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-white hover:bg-white/5 ${location.pathname === link.href
+                  ? 'text-white'
+                  : 'text-gray-400'
+                  }`}
               >
                 {link.label}
               </a>
@@ -120,7 +119,25 @@ export default function Navbar() {
                 <a
                   key={link.href}
                   href={link.href}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMobileOpen(false);
+                    const hash = link.href.includes('#') ? link.href.split('#')[1] : null;
+                    if (location.pathname !== '/') {
+                      navigate('/');
+                      if (hash) {
+                        setTimeout(() => {
+                          document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
+                        }, 300);
+                      }
+                    } else if (hash) {
+                      setTimeout(() => {
+                        document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
+                      }, 100);
+                    } else {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }}
                   className="block px-3 py-2 rounded-md text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
                 >
                   {link.label}

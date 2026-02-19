@@ -24,7 +24,7 @@ const rules = [
     items: [
       'Each band gets a fixed time slot for performance',
       'Reporting time: 10:00 AM (Mandatory)',
-      'Event runs from 12:00 PM to 6:00 PM',
+      'Event runs from 12:00 PM to 5:00 PM',
     ],
   },
   {

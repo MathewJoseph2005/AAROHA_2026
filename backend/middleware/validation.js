@@ -69,6 +69,12 @@ const validateRegistration = [
     .isLength({ max: 1000 })
     .withMessage('Additional requirements must not exceed 1000 characters'),
 
+  body('instagram_handle')
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage('Instagram handle must not exceed 50 characters'),
+
   // Error handling middleware
   (req, res, next) => {
     const errors = validationResult(req);

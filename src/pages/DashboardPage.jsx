@@ -121,7 +121,7 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {registrations.length === 0 && (
+            {(registrations.length === 0 || registrations.every(r => r.registration_status === 'rejected' || r.payment_status === 'failed')) && (
               <Button variant="neon" asChild>
                 <Link to="/register" className="gap-2">
                   <Plus className="w-4 h-4" />
@@ -240,8 +240,11 @@ export default function DashboardPage() {
                             </p>
                           </div>
                           <div className="flex flex-wrap items-center gap-2">
-                            {getStatusBadge(reg.registration_status)}
-                            {reg.payment_status && reg.payment_status !== 'pending' && getPaymentBadge(reg.payment_status)}
+                            {reg.registration_status !== 'rejected' && reg.payment_status !== 'failed' && getStatusBadge(reg.registration_status)}
+                            {reg.payment_status === 'failed' || reg.registration_status === 'rejected'
+                              ? <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" /> Rejected</Badge>
+                              : reg.payment_status && reg.payment_status !== 'pending' && getPaymentBadge(reg.payment_status)
+                            }
                           </div>
                         </div>
 
@@ -255,12 +258,14 @@ export default function DashboardPage() {
                         </div>
 
                         <div className="flex items-center gap-2 mt-3">
-                          <Button variant="neon-outline" size="sm" asChild>
-                            <Link to={`/register?edit=${reg.registration_id}`} className="gap-1">
-                              <Edit className="w-3 h-3" />
-                              Edit
-                            </Link>
-                          </Button>
+                          {reg.payment_status !== 'completed' && reg.payment_status !== 'failed' && reg.registration_status !== 'rejected' && (
+                            <Button variant="neon-outline" size="sm" asChild>
+                              <Link to={`/register?edit=${reg.registration_id}`} className="gap-1">
+                                <Edit className="w-3 h-3" />
+                                Edit
+                              </Link>
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="sm"

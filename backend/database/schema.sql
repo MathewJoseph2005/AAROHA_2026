@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS registrations (
     num_microphones INTEGER NOT NULL DEFAULT 1,
     drum_setup TEXT NOT NULL,
     additional_requirements TEXT,
+    instagram_handle VARCHAR(50),
     registration_fee INTEGER NOT NULL DEFAULT 1200,
     payment_status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (payment_status IN ('pending', 'completed', 'failed', 'refunded')),
     transaction_id VARCHAR(100),

@@ -53,15 +53,24 @@ const verifyToken = async (req, res, next) => {
 
 /**
  * Check if user is admin
+ * Admin access is granted if:
+ * 1. User has role 'admin' in user_profiles table, OR
+ * 2. User's email is in the ADMIN_EMAILS environment variable
  */
 const isAdmin = (req, res, next) => {
-  if (!req.userProfile || req.userProfile.role !== 'admin') {
-    return res.status(403).json({
-      success: false,
-      message: 'Access denied. Admin privileges required.'
-    });
+  // Check if email is in ADMIN_EMAILS list
+  const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase());
+  const userEmail = req.user?.email?.toLowerCase();
+  const isEmailAdmin = userEmail && adminEmails.includes(userEmail);
+
+  if (isEmailAdmin || (req.userProfile && req.userProfile.role === 'admin')) {
+    return next();
   }
-  next();
+
+  return res.status(403).json({
+    success: false,
+    message: 'Access denied. Admin privileges required.'
+  });
 };
 
 /**

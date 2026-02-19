@@ -19,21 +19,27 @@ const createRegistration = async (req, res) => {
       num_microphones,
       drum_setup,
       additional_requirements,
+      instagram_handle,
       transaction_id
     } = req.body;
 
     const registration_id = uuidv4();
-    
+
     // User must be logged in (verifyToken middleware)
     const user_id = req.user.id;
 
     // Check if user already has a registration
     const { data: existing, error: checkError } = await supabase
       .from('registrations')
-      .select('registration_id')
+      .select('registration_id, registration_status, payment_status')
       .eq('user_id', user_id);
 
-    if (!checkError && existing && existing.length > 0) {
+    // Allow re-registration if all previous registrations were rejected
+    const activeRegistrations = (!checkError && existing)
+      ? existing.filter(r => r.registration_status !== 'rejected' && r.payment_status !== 'failed')
+      : [];
+
+    if (activeRegistrations.length > 0) {
       return res.status(409).json({
         success: false,
         message: 'You have already registered a band. Only one registration per user is allowed.'
@@ -55,6 +61,7 @@ const createRegistration = async (req, res) => {
           num_microphones,
           drum_setup,
           additional_requirements,
+          instagram_handle: instagram_handle || null,
           transaction_id: transaction_id || null,
           registration_fee: REGISTRATION_FEE,
           payment_status: 'pending',
@@ -224,6 +231,20 @@ const updatePaymentStatus = async (req, res) => {
     const { id } = req.params;
     const { payment_status, transaction_id } = req.body;
 
+    // Check if registration is already rejected — block re-approval
+    const { data: currentReg } = await supabase
+      .from('registrations')
+      .select('registration_status')
+      .eq('registration_id', id)
+      .single();
+
+    if (currentReg?.registration_status === 'rejected' && payment_status === 'completed') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot approve a rejected registration. The user must register again.'
+      });
+    }
+
     const updateData = {
       payment_status,
       updated_at: new Date().toISOString()
@@ -235,6 +256,10 @@ const updatePaymentStatus = async (req, res) => {
 
     if (payment_status === 'completed') {
       updateData.registration_status = 'confirmed';
+    }
+
+    if (payment_status === 'failed') {
+      updateData.registration_status = 'rejected';
     }
 
     const { data, error } = await supabase

@@ -12,18 +12,31 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      // Supabase returns tokens in the URL hash
-      const hash = window.location.hash.substring(1);
-      const params = new URLSearchParams(hash);
+      // Supabase may return tokens in the URL hash OR as query parameters
+      let access_token, refresh_token, expires_at;
 
-      const access_token = params.get('access_token');
-      const refresh_token = params.get('refresh_token');
+      // Try hash first (Supabase default for implicit flow)
+      const hash = window.location.hash.substring(1);
+      if (hash) {
+        const hashParams = new URLSearchParams(hash);
+        access_token = hashParams.get('access_token');
+        refresh_token = hashParams.get('refresh_token');
+        expires_at = hashParams.get('expires_at');
+      }
+
+      // Fallback: check query parameters
+      if (!access_token) {
+        const queryParams = new URLSearchParams(window.location.search);
+        access_token = queryParams.get('access_token');
+        refresh_token = queryParams.get('refresh_token');
+        expires_at = queryParams.get('expires_at');
+      }
 
       if (access_token) {
         const session = {
           access_token,
           refresh_token,
-          expires_at: params.get('expires_at'),
+          expires_at,
         };
 
         // Store session so API calls can use the token

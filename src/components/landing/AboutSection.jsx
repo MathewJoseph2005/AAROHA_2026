@@ -93,7 +93,7 @@ export default function AboutSection() {
             </div>
             <div>
               <p className="text-sm text-gray-500 uppercase tracking-wider mb-1">Event Duration</p>
-              <p className="text-xl font-bold text-white">12:00 PM – 6:00 PM</p>
+              <p className="text-xl font-bold text-white">12:00 PM – 5:00 PM</p>
               <p className="text-xs text-gray-500 mt-1">6 hours of live music</p>
             </div>
             <div>

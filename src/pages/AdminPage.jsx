@@ -168,7 +168,7 @@ export default function AdminPage() {
             <StatCard
               icon={<Clock className="w-5 h-5" />}
               label="Pending"
-              value={stats.pending}
+              value={registrations.filter(r => r.registration_status === 'pending' && r.payment_status !== 'failed').length}
               color="amber"
             />
             <StatCard
@@ -247,8 +247,11 @@ export default function AdminPage() {
                     <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex items-center gap-3 flex-wrap">
                         <h3 className="font-semibold text-white text-lg">{reg.team_name}</h3>
-                        {getStatusBadge(reg.registration_status)}
-                        {getPaymentBadge(reg.payment_status)}
+                        {reg.registration_status !== 'rejected' && reg.payment_status !== 'failed' && getStatusBadge(reg.registration_status)}
+                        {reg.payment_status === 'failed' || reg.registration_status === 'rejected'
+                          ? <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" /> Rejected</Badge>
+                          : reg.payment_status !== 'pending' && getPaymentBadge(reg.payment_status)
+                        }
                       </div>
                       <p className="text-sm text-gray-400">{reg.college_name}</p>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 pt-1">
@@ -282,7 +285,7 @@ export default function AdminPage() {
 
                       {/* Action buttons */}
                       <div className="flex items-center gap-2">
-                        {reg.payment_status !== 'completed' && (
+                        {reg.payment_status !== 'completed' && reg.payment_status !== 'failed' && reg.registration_status !== 'rejected' && (
                           <Button
                             variant="neon"
                             size="sm"

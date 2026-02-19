@@ -1,6 +1,8 @@
 import { Phone, Instagram, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import sargamLogo from '@/assets/SARGAM_LOGO.png';
+import sargamLogo from '@/assets/icon_logo.png';
+import sjcLogo from '@/assets/SJC_LOGO.png';
+
 
 export default function Footer() {
   return (
@@ -23,6 +25,9 @@ export default function Footer() {
               together the most talented campus bands for an electrifying live
               performance experience.
             </p>
+            <div>
+              <img src={sjcLogo} alt="SARGAM" className="h-30 w-40 object-contain" style={{ filter: 'drop-shadow(0 0 5px rgba(139,92,246,0.35))' }} />
+            </div>
           </div>
 
           {/* Quick Links */}
@@ -65,6 +70,12 @@ export default function Footer() {
                 <Phone className="w-4 h-4 text-neon-violet" />
                 <a href="tel:+916282257804" className="hover:text-neon-cyan transition-colors">
                   Arjun TN: 6282257804
+                </a>
+              </li>
+              <li className="flex items-center gap-2 text-sm text-gray-400">
+                <Phone className="w-4 h-4 text-neon-violet" />
+                <a href="tel:+919847847419" className="hover:text-neon-cyan transition-colors">
+                  Joel Biju: 9847847419
                 </a>
               </li>
               <li className="flex items-center gap-2 text-sm text-gray-400">

@@ -85,18 +85,16 @@ export default function CriteriaSection() {
               transition={{ duration: 0.5, delay: 0.1 + i * 0.12 }}
               className={`relative p-6 rounded-2xl ${item.bg} border ${item.border} backdrop-blur-sm group hover:scale-[1.02] transition-transform duration-300`}
             >
-              {/* Weight badge */}
-              <div className="absolute top-4 right-4">
-                <span className={`text-2xl font-black bg-gradient-to-br ${item.color} bg-clip-text text-transparent`}>
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center shrink-0`}>
+                    <item.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                </div>
+                <span className={`text-2xl font-black bg-gradient-to-br ${item.color} bg-clip-text text-transparent shrink-0`}>
                   {item.weight}
                 </span>
-              </div>
-
-              <div className="flex items-center gap-3 mb-3">
-                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center`}>
-                  <item.icon className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-white">{item.title}</h3>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed">{item.description}</p>
             </motion.div>

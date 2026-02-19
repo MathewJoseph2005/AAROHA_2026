@@ -55,6 +55,7 @@ export default function RegistrationPage() {
     num_microphones: 2,
     drum_setup: '',
     additional_requirements: '',
+    instagram_handle: '',
     transaction_id: '',
   });
 
@@ -79,6 +80,7 @@ export default function RegistrationPage() {
               num_microphones: reg.num_microphones || 2,
               drum_setup: reg.drum_setup || '',
               additional_requirements: reg.additional_requirements || '',
+              instagram_handle: reg.instagram_handle || '',
               transaction_id: reg.transaction_id || '',
             });
             setRegistrationData(reg);
@@ -92,8 +94,12 @@ export default function RegistrationPage() {
         // New registration — check if user already registered
         try {
           const { data } = await registrationAPI.getMyRegistrations();
-          if (data.success && data.data && data.data.length > 0) {
-            setHasExistingRegistration(true);
+          if (data.success && data.data) {
+            // Allow re-registration if all previous registrations were rejected
+            const activeRegs = data.data.filter(r => r.registration_status !== 'rejected' && r.payment_status !== 'failed');
+            if (activeRegs.length > 0) {
+              setHasExistingRegistration(true);
+            }
           }
         } catch {
           // Ignore — let them proceed
@@ -134,48 +140,38 @@ export default function RegistrationPage() {
     setError('');
 
     // Manual validation
-    if (!form.team_name.trim() || form.team_name.trim().length < 2) {
-      setError('Team / Band Name is required (at least 2 characters).');
+    const showError = (msg) => {
+      setError(msg);
       setLoading(false);
-      return;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    if (!form.team_name.trim() || form.team_name.trim().length < 2) {
+      return showError('Team / Band Name is required (at least 2 characters).');
     }
     if (!form.college_name.trim() || form.college_name.trim().length < 2) {
-      setError('College Name is required (at least 2 characters).');
-      setLoading(false);
-      return;
+      return showError('College Name is required (at least 2 characters).');
     }
     if (!form.team_leader_name.trim() || form.team_leader_name.trim().length < 2) {
-      setError('Leader Name is required (at least 2 characters).');
-      setLoading(false);
-      return;
+      return showError('Leader Name is required (at least 2 characters).');
     }
     if (!form.team_leader_email.trim() || !/\S+@\S+\.\S+/.test(form.team_leader_email)) {
-      setError('A valid Leader Email is required.');
-      setLoading(false);
-      return;
+      return showError('A valid Leader Email is required.');
     }
     if (!form.team_leader_phone.trim() || !/^[0-9]{10}$/.test(form.team_leader_phone)) {
-      setError('Leader Phone must be a 10-digit number.');
-      setLoading(false);
-      return;
+      return showError('Leader Phone must be a 10-digit number.');
     }
     if (!form.drum_setup.trim()) {
-      setError('Drum Setup is required (enter "none" if not needed).');
-      setLoading(false);
-      return;
+      return showError('Drum Setup is required (enter "none" if not needed).');
     }
     if (!form.transaction_id.trim()) {
-      setError('Transaction / UTR ID is required. Please make the payment and enter the transaction ID.');
-      setLoading(false);
-      return;
+      return showError('Transaction / UTR ID is required. Please make the payment and enter the transaction ID.');
     }
 
     // Validate team members
     const validMembers = form.team_members.filter((m) => m.name.trim() && m.role.trim());
     if (validMembers.length < 1) {
-      setError('At least one team member with name and role is required.');
-      setLoading(false);
-      return;
+      return showError('At least one team member with name and role is required.');
     }
 
     const payload = {
@@ -525,7 +521,10 @@ export default function RegistrationPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-gray-300">Number of Microphones * (1-20)</Label>
+                      <Label className="text-gray-300 flex items-center gap-1">
+                        <Mic className="w-3 h-3" />
+                        Number of Microphones * (1-20)
+                      </Label>
                       <Input
                         type="number"
                         name="num_microphones"
@@ -569,6 +568,21 @@ export default function RegistrationPage() {
                     />
                     <p className="text-xs text-gray-500 text-right">
                       {form.additional_requirements.length}/1000
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Band Instagram Handle (optional)</Label>
+                    <Input
+                      name="instagram_handle"
+                      value={form.instagram_handle}
+                      onChange={handleChange}
+                      placeholder="@yourbandname"
+                      maxLength={50}
+                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-violet-500"
+                    />
+                    <p className="text-xs text-gray-500">
+                      Share your band&apos;s Instagram for promotion
                     </p>
                   </div>
                 </div>

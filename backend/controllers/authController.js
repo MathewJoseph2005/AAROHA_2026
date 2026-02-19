@@ -1,6 +1,22 @@
 const supabase = require('../config/supabase');
 
 /**
+ * Helper: Check if email is in ADMIN_EMAILS environment variable
+ */
+const isAdminEmail = (email) => {
+  const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase());
+  return email && adminEmails.includes(email.toLowerCase());
+};
+
+/**
+ * Helper: Get effective role (checks both profile role and ADMIN_EMAILS)
+ */
+const getEffectiveRole = (email, profileRole) => {
+  if (isAdminEmail(email)) return 'admin';
+  return profileRole || 'team';
+};
+
+/**
  * Sign up a new user (Team)
  */
 const signUp = async (req, res) => {
@@ -102,7 +118,7 @@ const signIn = async (req, res) => {
         user: {
           id: data.user.id,
           email: data.user.email,
-          role: profile?.role || 'team',
+          role: getEffectiveRole(data.user.email, profile?.role),
           name: profile?.name
         },
         session: {
@@ -168,7 +184,7 @@ const getProfile = async (req, res) => {
         name: metadata.name || metadata.full_name || '',
         phone: metadata.phone || '',
         college_name: metadata.college_name || '',
-        role: req.userProfile?.role || 'team',
+        role: getEffectiveRole(req.user.email, req.userProfile?.role),
       };
 
       const { data: created, error: insertError } = await supabase
@@ -184,6 +200,11 @@ const getProfile = async (req, res) => {
         console.error('Profile upsert error:', insertError?.message);
         profile = newProfile;
       }
+    }
+
+    // Update profile role to effective role (checks ADMIN_EMAILS)
+    if (profile) {
+      profile.role = getEffectiveRole(profile.email, profile.role);
     }
 
     // Get user's registrations
@@ -609,7 +630,7 @@ const googleSignIn = async (req, res) => {
         user: {
           id: data.user.id,
           email: data.user.email,
-          role: userProfile?.role || 'team',
+          role: getEffectiveRole(data.user.email, userProfile?.role),
           name: userProfile?.name || data.user.user_metadata?.full_name
         },
         session: {
@@ -643,7 +664,7 @@ const getGoogleAuthUrl = async (req, res) => {
       });
     }
 
-    const redirectTo = process.env.GOOGLE_REDIRECT_URL || 'http://localhost:5173/auth/callback';
+    const redirectTo = process.env.GOOGLE_REDIRECT_URL || 'http://localhost:3000/auth/callback';
     const authUrl = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
 
     res.status(200).json({

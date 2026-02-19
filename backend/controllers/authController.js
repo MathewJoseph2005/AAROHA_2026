@@ -664,7 +664,7 @@ const getGoogleAuthUrl = async (req, res) => {
       });
     }
 
-    const redirectTo = process.env.GOOGLE_REDIRECT_URL || 'http://localhost:5173/auth/callback';
+    const redirectTo = process.env.GOOGLE_REDIRECT_URL || 'http://localhost:3000/auth/callback';
     const authUrl = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
 
     res.status(200).json({

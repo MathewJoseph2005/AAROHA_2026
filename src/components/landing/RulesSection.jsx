@@ -22,7 +22,8 @@ const rules = [
     icon: Clock,
     title: 'Performance',
     items: [
-      'Each band gets a fixed time slot for performance',
+      'Event Date: 7th March 2026',
+      'Total time per team: 30 minutes (15 min sound check + 15 min live)',
       'Reporting time: 10:00 AM (Mandatory)',
       'Event runs from 12:00 PM to 5:00 PM',
     ],
@@ -51,6 +52,7 @@ const rules = [
 
 const eligibility = [
   'Open to all college & university students across India',
+  'Alumni can also participate in the event',
   'Valid college ID is mandatory for all band members',
   'One student can be part of only one band',
   'Registration fee: ₹1,200 per team (non-refundable)',

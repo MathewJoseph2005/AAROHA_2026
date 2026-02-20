@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Trophy, Calendar, Users, Zap } from 'lucide-react';
+import { Trophy, CalendarDays, Users, Zap } from 'lucide-react';
 import sargamLogo from '@/assets/SARGAM_LOGO.png';
 import sjcLogo from '@/assets/SJC_LOGO.png';
 
 const stats = [
   { icon: Trophy, label: 'Prize Pool', value: '₹60,000', color: 'text-neon-gold' },
-  { icon: Calendar, label: 'Event Time', value: '12 PM – 5 PM', color: 'text-neon-cyan' },
+  { icon: CalendarDays, label: 'Event Date', value: '7 March 2026', color: 'text-neon-cyan' },
   { icon: Users, label: 'Team Size', value: '4–10 Members', color: 'text-neon-magenta' },
   { icon: Zap, label: 'Entry Fee', value: '₹1,200/team', color: 'text-neon-violet' },
 ];
@@ -138,6 +138,7 @@ export default function Hero() {
           An electrifying inter-college music showdown. Bring your band, your energy,
           and your passion — compete for glory and a massive{' '}
           <span className="text-neon-gold font-semibold">₹60,000 prize pool</span>.
+          <span className="block mt-2 text-base text-violet-300/80">Open to college students & alumni!</span>
         </motion.p>
 
         {/* CTA Buttons */}
